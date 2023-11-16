@@ -1,3 +1,6 @@
+#Name: Diego Miguel M. Villamil
+#Section: CMSC 170 WX-3L
+
 from decimal import *
 from math import sqrt
 
