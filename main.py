@@ -4,7 +4,7 @@ from math import sqrt
 def sort_key(nghbr):
   return nghbr[1]
 
-kinp = 5
+kinp = int(input("Please enter the value for k: "))
 kNearest = []
 diabetes = []
 input = []
@@ -12,6 +12,8 @@ distList = []
 output = []
 
 fpDb = open("debug.txt", "w")
+temp = "Value for k: " + str(kinp) + "\n"
+fpDb.write(temp)
 fpDb.close()
 
 fp = open("diabetes.csv", "r")
