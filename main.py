@@ -31,6 +31,7 @@ fp.close()
 
 dataset.sort(key = sort_class, reverse = True)
 numClasses = int(dataset[0][len(dataset[0]) - 1] + 1)
+classInd = len(dataset[0]) - 1
 
 fp = open("input.in", "r")
 for line in fp: #Read the data from input.in
@@ -67,23 +68,25 @@ for i in range(0,inplen): #Loop through each feature vector in input
     fpDb.write(txtOut)#Writes the kth nearest to input [i]
 
     for j in range(0,numClasses):
-      if(dataset[distList[k][0]][8] == j):
+      if(dataset[distList[k][0]][classInd] == j):
         classes[j] += 1
-    classSet = set(classes)
+  classSet = set(classes)
 
   if(len(classes) != len(classSet)): #Breaking ties by looking at the next nearest neighbor
-    temp = str(tuple(list(map(float,dataset[distList[k][0]]))))
-    txtOut = temp + ", distance: " +  str(distList[k][1]) + "\n"
+    temp = str(tuple(list(map(float,dataset[distList[kn][0]]))))
+    txtOut = temp + ", distance: " +  str(distList[kn][1]) + "\n"
     fpDb.write(txtOut)
-
+    
     for j in range(0,numClasses):
-      if(dataset[distList[kn][0]][8] == j):
+      if(dataset[distList[kn][0]][classInd] == j):
+        print("class: ", j)
         classes[j] += 1
     
     classSet = set(classes)
-    kn += 1
     
   temp = input[i].copy()
+  print(classes)
+  print(classes.index(max(classes)))
   temp.append(classes.index(max(classes)))
   
   fpDb.close()
