@@ -7,9 +7,12 @@ from math import sqrt
 def sort_key(nghbr):
   return nghbr[1]
 
+def sort_class(fv):
+  return fv[len(fv) - 1]
+
 kinp = int(input("Please enter the value for k: "))
 kNearest = []
-diabetes = []
+dataset = []
 input = []
 distList = []
 output = []
@@ -20,11 +23,14 @@ fpDb.write(temp)
 fpDb.close()
 
 fp = open("diabetes.csv", "r")
-for line in fp: #Read the data from diabetes .csv
+for line in fp: #Read the data from dataset .csv
   temp = line.split(",")
   temp = list(map(Decimal,temp))
-  diabetes.append(temp)
+  dataset.append(temp)
 fp.close()
+
+dataset.sort(key = sort_class, reverse = True)
+numClasses = int(dataset[0][len(dataset[0]) - 1] + 1)
 
 fp = open("input.in", "r")
 for line in fp: #Read the data from input.in
@@ -32,22 +38,23 @@ for line in fp: #Read the data from input.in
   temp = list(map(Decimal,temp))
   input.append(temp)
 
-dlen = len(diabetes)
+dlen = len(dataset)
 inplen = len(input)
 
 for i in range(0,inplen): #Loop through each feature vector in input
   distList.clear()
   kNearest.clear()
   kn = kinp
-  diabetic = 0
-  nondiabetic = 0
+  classes = []
+  for j in range(0,numClasses):
+    classes.append(0)
 
-  for j in range(0,dlen): #Loop through each feature vector in diabetes
+  for j in range(0,dlen): #Loop through each feature vector in dataset
     dist = 0
-    for k in range(0,(len(input[0]))): # Calculate the distance of feature vector input[i] to diabetes[j]
-      dist += abs(input[i][k] - diabetes[j][k]) ** 2
+    for k in range(0,(len(input[0]))): # Calculate the distance of feature vector input[i] to dataset[j]
+      dist += abs(input[i][k] - dataset[j][k]) ** 2
     dist = sqrt(dist)
-    distList.append((j,dist)) #appends a tupple where (index in diabetes, distance to feat vector input[i])
+    distList.append((j,dist)) #appends a tupple where (index in dataset, distance to feat vector input[i])
   
   distList.sort(key = sort_key) 
 
@@ -55,36 +62,34 @@ for i in range(0,inplen): #Loop through each feature vector in input
   temp = "input feature vector: " + str(tuple(list(map(float, input[i])))) + "\n"
   fpDb.write(temp)#Writes the current feature vector from input being classified
   for k in range(0,kn):
-    temp = str(tuple(list(map(float,diabetes[distList[k][0]]))))
+    temp = str(tuple(list(map(float,dataset[distList[k][0]]))))
     txtOut = temp + ", distance: " +  str(distList[k][1]) + "\n"
     fpDb.write(txtOut)#Writes the kth nearest to input [i]
 
-    if (diabetes[distList[k][0]][8] == 0):
-      nondiabetic += 1
-    else:
-      diabetic += 1
+    for j in range(0,numClasses):
+      if(dataset[distList[k][0]][8] == j):
+        classes[j] += 1
+    classSet = set(classes)
 
-  while(diabetic == nondiabetic): #Breaking ties by looking at the next nearest neighbor
-    temp = str(tuple(list(map(float,diabetes[distList[k][0]]))))
+  if(len(classes) != len(classSet)): #Breaking ties by looking at the next nearest neighbor
+    temp = str(tuple(list(map(float,dataset[distList[k][0]]))))
     txtOut = temp + ", distance: " +  str(distList[k][1]) + "\n"
     fpDb.write(txtOut)
-    if (diabetes[kn][8] == 0):
-      nondiabetic += 1
-    else:
-      diabetic += 1
+
+    for j in range(0,numClasses):
+      if(dataset[distList[kn][0]][8] == j):
+        classes[j] += 1
+    
+    classSet = set(classes)
     kn += 1
+    
+  temp = input[i].copy()
+  temp.append(classes.index(max(classes)))
   
   fpDb.close()
-
-  if(diabetic > nondiabetic): #classifies the current feature vector input[i]
-    temp = input[i].copy()
-    temp.append(1)
-  elif(nondiabetic > diabetic):
-    temp = input[i].copy()
-    temp.append(0)
   
   output.append(temp)
-  diabetes.append(output[i])
+  dataset.append(output[i])
   
 
 fp = open("output.txt", "w") #write the data in output to output.txt
